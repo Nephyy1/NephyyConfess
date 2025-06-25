@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from 'react';
-import ParticlesBackground from '../components/ParticlesBackground';
 
 const UserIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -33,113 +32,83 @@ const moods = [
 export default function ConfessPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [selectedMood, setSelectedMood] = useState('');
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsSubmitting(true);
-    setTimeout(() => {
-        setIsSubmitted(true);
-    }, 500);
+
+    const formData = new FormData(event.currentTarget);
+    const data = {
+      pesan: formData.get('pesan'),
+      nama: formData.get('nama'),
+      tautan: formData.get('tautan'),
+      mood: selectedMood,
+    };
+
+    try {
+      const response = await fetch('/api/kirim-pesan', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error('Gagal mengirim pesan');
+      }
+
+      setTimeout(() => {
+          setIsSubmitted(true);
+      }, 500);
+
+    } catch (error) {
+      alert('Terjadi kesalahan. Silakan coba lagi.');
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <main className="font-sans flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8 w-full relative">
-      <ParticlesBackground />
-      <div className="w-full max-w-2xl relative z-10">
-        
-        <div 
-            className={`
-                transition-all duration-1000 ease-in-out
-                ${isSubmitted ? 'opacity-0 scale-50 -translate-y-full rotate-12' : 'opacity-100 scale-100 translate-y-0 rotate-0'}
-            `}
-        >
-            <div className="bg-white/70 backdrop-blur-xl border border-slate-200/80 shadow-2xl shadow-slate-300/60 rounded-2xl p-6 sm:p-10">
-                <div className="text-center mb-12">
-                    <h1 className="text-3xl md:text-4xl font-bold text-slate-800">
-                    Ruang Pesan Pribadi
-                    </h1>
-                    <p className="text-slate-500 mt-3 text-base max-w-md mx-auto">
-                    Semua yang terkirim bersifat rahasia dan hanya akan terbaca oleh saya.
-                    </p>
-                </div>
-
+    <main className="font-sans flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-2xl relative">
+        <div className={`transition-all duration-1000 ease-in-out ${isSubmitted ? 'opacity-0 scale-50 -translate-y-full rotate-12' : 'opacity-100 scale-100 translate-y-0 rotate-0'}`}>
+            <div className="bg-white/70 backdrop-blur-xl border border-slate-200/80 shadow-xl shadow-slate-200/50 rounded-2xl p-6 sm:p-10">
+                <div className="text-center mb-12"><h1 className="text-3xl md:text-4xl font-bold text-slate-800">Ruang Pesan Pribadi</h1><p className="text-slate-500 mt-3 text-base max-w-md mx-auto">Semua yang terkirim bersifat rahasia dan hanya akan terbaca oleh saya.</p></div>
                 <form onSubmit={handleSubmit} className="space-y-10">
                     <div>
-                        <label htmlFor="pesan" className="block text-sm font-medium text-slate-600 mb-2">
-                            Pesan Anda
-                        </label>
-                        <textarea
-                            id="pesan"
-                            name="pesan"
-                            rows="6"
-                            className="block w-full px-4 py-3 bg-slate-50/80 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300"
-                            placeholder="Tuliskan apapun yang ingin Anda sampaikan..."
-                            required
-                        ></textarea>
+                        <label htmlFor="pesan" className="block text-sm font-medium text-slate-600 mb-2">Pesan Anda</label>
+                        <textarea id="pesan" name="pesan" rows="6" className="block w-full px-4 py-3 bg-slate-50/80 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300" placeholder="Tuliskan apapun yang ingin Anda sampaikan..." required></textarea>
                     </div>
-
                     <div>
-                        <label className="block text-sm font-medium text-slate-600 mb-3">
-                            Bagaimana Perasaanmu?
-                        </label>
+                        <label className="block text-sm font-medium text-slate-600 mb-3">Bagaimana Perasaanmu?</label>
                         <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 sm:gap-4">
                             {moods.map((mood) => (
-                            <button
-                                key={mood.name}
-                                type="button"
-                                className="flex flex-col items-center justify-center text-center p-3 bg-slate-50 border-2 border-slate-200 rounded-xl cursor-pointer transition-all duration-300 group hover:border-indigo-400 hover:bg-indigo-50 focus:outline-none focus:ring-1 focus:ring-offset-2 focus:ring-indigo-500"
-                            >
+                            <button key={mood.name} type="button" onClick={() => setSelectedMood(mood.emoji)} className={`flex flex-col items-center justify-center text-center p-3 bg-slate-50 border-2 rounded-xl cursor-pointer transition-all duration-300 group hover:border-indigo-400 hover:bg-indigo-50 focus:outline-none focus:ring-1 focus:ring-offset-2 focus:ring-indigo-500 ${selectedMood === mood.emoji ? 'border-indigo-500 bg-indigo-50' : 'border-slate-200'}`}>
                                 <span className="text-4xl transition-transform duration-300 group-hover:scale-110">{mood.emoji}</span>
                                 <span className="block text-xs font-semibold text-slate-600 mt-2">{mood.name}</span>
                             </button>
                             ))}
                         </div>
                     </div>
-
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-2">
                         <div>
-                            <label htmlFor="nama" className="block text-sm font-medium text-slate-600 mb-2">
-                                Nama Anda <span className="font-normal text-slate-400">(Opsional)</span>
-                            </label>
+                            <label htmlFor="nama" className="block text-sm font-medium text-slate-600 mb-2">Nama Anda <span className="font-normal text-slate-400">(Opsional)</span></label>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                                    <UserIcon />
-                                </div>
-                                <input
-                                    type="text"
-                                    name="nama"
-                                    id="nama"
-                                    className="block w-full pl-12 pr-4 py-3 bg-slate-50/80 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300"
-                                    placeholder="Biarkan kosong untuk anonim"
-                                />
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400"><UserIcon /></div>
+                                <input type="text" name="nama" id="nama" className="block w-full pl-12 pr-4 py-3 bg-slate-50/80 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300" placeholder="Biarkan kosong untuk anonim" />
                             </div>
                         </div>
-
                         <div>
-                            <label htmlFor="tautan" className="block text-sm font-medium text-slate-600 mb-2">
-                                Sertakan Tautan <span className="font-normal text-slate-400">(Opsional)</span>
-                            </label>
+                            <label htmlFor="tautan" className="block text-sm font-medium text-slate-600 mb-2">Sertakan Tautan <span className="font-normal text-slate-400">(Opsional)</span></label>
                             <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
-                                    <LinkIcon />
-                                </div>
-                                <input
-                                    type="url"
-                                    name="tautan"
-                                    id="tautan"
-                                    className="block w-full pl-12 pr-4 py-3 bg-slate-50/80 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300"
-                                    placeholder="Profil, email, atau lainnya"
-                                />
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400"><LinkIcon /></div>
+                                <input type="url" name="tautan" id="tautan" className="block w-full pl-12 pr-4 py-3 bg-slate-50/80 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition duration-300" placeholder="Profil, email, atau lainnya" />
                             </div>
                         </div>
                     </div>
-                    
                     <div className="pt-2">
-                        <button
-                            type="submit"
-                            disabled={isSubmitting}
-                            className="w-full flex items-center justify-center gap-2 py-4 px-4 border border-transparent rounded-lg shadow-lg text-base font-bold text-white bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 transform hover:scale-[1.03] hover:shadow-indigo-400/50 disabled:opacity-50 disabled:scale-100"
-                        >
+                        <button type="submit" disabled={isSubmitting} className="w-full flex items-center justify-center gap-2 py-4 px-4 border border-transparent rounded-lg shadow-lg text-base font-bold text-white bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-300 transform hover:scale-[1.03] hover:shadow-indigo-400/50 disabled:opacity-50 disabled:scale-100">
                             <PaperAirplaneIcon />
                             <span>{isSubmitting ? 'Mengirim...' : 'Kirim Pesan'}</span>
                         </button>
@@ -147,28 +116,15 @@ export default function ConfessPage() {
                 </form>
             </div>
         </div>
-
-        <div className={`
-            absolute inset-0 flex flex-col items-center justify-center text-center
-            transition-opacity duration-500 ease-in-out z-20
-            ${isSubmitted ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}
-            `}
-            style={{ transitionDelay: isSubmitted ? '500ms' : '0ms' }}
-        >
+        <div className={`absolute inset-0 flex flex-col items-center justify-center text-center transition-opacity duration-500 ease-in-out ${isSubmitted ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} style={{ transitionDelay: isSubmitted ? '500ms' : '0ms' }}>
              <div className="bg-white/80 backdrop-blur-xl border border-slate-200/80 p-10 rounded-2xl shadow-xl">
                 <p className="text-5xl mb-4">💌</p>
                 <h2 className="text-2xl font-bold text-slate-800">Terima kasih telah berbagi.</h2>
                 <p className="text-slate-500 mt-2">Pesanmu telah terkirim dan akan dijaga dengan baik.</p>
              </div>
         </div>
-        
-        <footer className={`
-            absolute bottom-6 left-1/2 -translate-x-1/2 text-center transition-opacity duration-1000 z-10
-            ${isSubmitted ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}
-        `}>
-          <p className="text-sm text-slate-500">
-            &copy; {new Date().getFullYear()} Dibuat untuk didengarkan.
-          </p>
+        <footer className={`text-center mt-10 transition-opacity duration-1000 ${isSubmitted ? 'opacity-0 pointer-events-none' : 'opacity-0'}`}>
+          <p className="text-sm text-slate-400">&copy; {new Date().getFullYear()} Dibuat untuk didengarkan.</p>
         </footer>
       </div>
     </main>
