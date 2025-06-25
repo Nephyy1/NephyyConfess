@@ -149,7 +149,7 @@ export default function ConfessPage() {
         <div className={`
             absolute inset-0 flex flex-col items-center justify-center text-center
             transition-opacity duration-500 ease-in-out
-            ${isSubmitted ? 'opacity-100' : 'opacity-0'}
+            ${isSubmitted ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}
             `}
             style={{ transitionDelay: isSubmitted ? '500ms' : '0ms' }}
         >
@@ -162,9 +162,9 @@ export default function ConfessPage() {
         
         <footer className={`
             text-center mt-10 transition-opacity duration-1000
-            ${isSubmitted ? 'opacity-0' : 'opacity-100'}
+            ${isSubmitted ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}
         `}>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-slate-400">
             &copy; {new Date().getFullYear()} Dibuat untuk didengarkan.
           </p>
         </footer>
