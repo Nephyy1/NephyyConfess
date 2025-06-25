@@ -4,7 +4,22 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes animated-gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(45deg, #f9fafb, #f3f4f6, #e5e7eb, #d1d5db);
+  background-size: 400% 400%;
+  animation: animated-gradient 30s ease infinite;
 }
